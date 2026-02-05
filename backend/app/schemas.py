@@ -4,20 +4,13 @@ from uuid import UUID
 
 # strict typing using Pydantic models
 
-class Position(BaseModel):
-    """
-    Represents the x and y coordinates of a node.
-    """
-    x: float
-    y: float
-
 class NodeData(BaseModel):
     """
     Stores the payload and configuration for a node.
     """
-    label: str
+    label: str = "Node"
     value: Optional[Any] = None
-    config: Optional[Dict[str, Any]] = None
+    config: Dict[str, Any] = {}
     is_output: bool = False
 
 class Node(BaseModel):
@@ -25,8 +18,7 @@ class Node(BaseModel):
     Represents a single node in the flow.
     """
     id: str  # Kept as str to allow UUIDs or other string identifiers
-    type: str  # Defined as Literal in spec but using str for flexibility in MVP
-    position: Position
+    type: str  # Using str for flexibility in MVP
     data: NodeData
 
 class Edge(BaseModel):

@@ -15,8 +15,8 @@
 <p align="center">
   <a href="#-quick-start">Quick Start</a> •
   <a href="#-features">Features</a> •
-  <a href="#-roadmap">Roadmap</a> •
-  <a href="#-tech-stack">Tech Stack</a> •
+  <a href="#%EF%B8%8F-roadmap">Roadmap</a> •
+  <a href="#%EF%B8%8F-tech-stack">Tech Stack</a> •
   <a href="#-contributing">Contributing</a>
 </p>
 
@@ -25,14 +25,14 @@
 ## 🧭 Table of Contents
 
 - [Overview](#-overview)
-- [Tech Stack](#-tech-stack)
+- [Tech Stack](#%EF%B8%8F-tech-stack)
 - [Features](#-features)
-- [Architecture](#-architecture)
+- [Architecture](#%EF%B8%8F-architecture)
 - [Getting Started](#-quick-start)
   - [Prerequisites](#prerequisites)
   - [Installation](#installation)
   - [Running the Application](#running-the-application)
-- [Roadmap](#-roadmap)
+- [Roadmap](#%EF%B8%8F-roadmap)
 - [Contributing](#-contributing)
 - [License](#-license)
 
@@ -114,11 +114,11 @@ Built on a modern, type-safe foundation with **Next.js 15** and **FastAPI**, Aet
 
 ### Additional Technologies
 
-![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
-![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white)
-![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=flat-square&logo=pydantic&logoColor=white)
-![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=flat-square&logo=shadcnui&logoColor=white)
-![Lucide](https://img.shields.io/badge/Lucide_Icons-F56040?style=flat-square&logo=lucide&logoColor=white)
+[![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Python](https://img.shields.io/badge/Python_3.12-3776AB?style=flat-square&logo=python&logoColor=white)](https://www.python.org/)
+[![Pydantic](https://img.shields.io/badge/Pydantic-E92063?style=flat-square&logo=pydantic&logoColor=white)](https://docs.pydantic.dev/)
+[![shadcn/ui](https://img.shields.io/badge/shadcn/ui-000000?style=flat-square&logo=shadcnui&logoColor=white)](https://ui.shadcn.com/)
+[![Lucide](https://img.shields.io/badge/Lucide_Icons-F56040?style=flat-square&logo=lucide&logoColor=white)](https://lucide.dev/)
 
 <p align="right">(<a href="#-table-of-contents">back to top</a>)</p>
 
