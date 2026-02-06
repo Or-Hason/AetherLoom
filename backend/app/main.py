@@ -4,6 +4,7 @@ from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.schemas import FlowExecutionRequest
+from app.engine.graph_executor import GraphExecutor, CyclicGraphError
 
 # Setup Logging
 logging.basicConfig(
@@ -43,29 +44,41 @@ async def run_flow(request: FlowExecutionRequest) -> Dict[str, Any]:
     Execute a flow based on the provided nodes and edges.
     
     Logic:
-    1. Parse the graph.
-    2. Validate connections.
-    3. Execute logic.
-    4. Return results.
+    1. Parse the graph structure from nodes and edges.
+    2. Perform topological sort to determine execution order.
+    3. Validate for cyclic dependencies.
+    4. Execute nodes in dependency order.
+    5. Return structured execution results.
     """
     logger.info(f"Received flow execution request: {len(request.nodes)} nodes, {len(request.edges)} edges")
     
     try:
-        # Placeholder for actual execution logic
-        # For initialization, we will just acknowledge the request and return empty/mock results
-        # In a real implementation, this would invoke the Execution Engine service
+        # Initialize the graph executor
+        executor = GraphExecutor(nodes=request.nodes, edges=request.edges)
         
-        results: Dict[str, Any] = {}
+        # Execute the flow graph
+        results = executor.execute()
         
-        # Simple pass-through for V1 initialization
-        for node in request.nodes:
-            # If the node has a value in its config or data, we might return it?
-            # For now just default to None or input value
-            results[node.id] = node.data.value
-
-        logger.info("Flow execution processing completed")
+        logger.info("Flow execution processing completed successfully")
         return results
 
+    except CyclicGraphError as e:
+        logger.error(f"Cyclic graph detected: {str(e)}")
+        raise HTTPException(
+            status_code=400, 
+            detail=f"Invalid graph structure: {str(e)}"
+        )
+    
+    except NotImplementedError as e:
+        logger.warning(f"Block type not implemented: {str(e)}")
+        raise HTTPException(
+            status_code=501,
+            detail=f"Feature not yet implemented: {str(e)}"
+        )
+    
     except Exception as e:
-        logger.error(f"Error during flow execution: {str(e)}")
-        raise HTTPException(status_code=500, detail="Internal Server Error during flow execution")
+        logger.error(f"Error during flow execution: {str(e)}", exc_info=True)
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Internal Server Error during flow execution: {str(e)}"
+        )
