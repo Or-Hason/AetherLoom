@@ -165,12 +165,33 @@ class GraphExecutor:
         Raises:
             NotImplementedError: If the node type is not yet implemented
         """
-        # TODO: Implement a block registry/factory pattern
-        # For now, this is a placeholder that will be expanded in future issues
-        raise NotImplementedError(
-            f"Block type '{node.type}' is not yet implemented. "
-            "Block registry will be added in future issues."
+        # Import block types
+        from app.blocks.input_blocks import TextInputBlock, NumberInputBlock
+        from app.blocks.output_blocks import TextOutputBlock, NumberOutputBlock
+        
+        # Block registry mapping node types to block classes
+        BLOCK_REGISTRY = {
+            "text_input": TextInputBlock,
+            "number_input": NumberInputBlock,
+            "text_output": TextOutputBlock,
+            "number_output": NumberOutputBlock,
+        }
+        
+        # Get the block class for this node type
+        block_class = BLOCK_REGISTRY.get(node.type)
+        
+        if block_class is None:
+            raise NotImplementedError(
+                f"Block type '{node.type}' is not yet implemented. "
+                f"Available types: {', '.join(BLOCK_REGISTRY.keys())}"
+            )
+        
+        # Instantiate the block with node configuration
+        return block_class(
+            node_id=node.id,
+            config=node.data.config if node.data.config else {}
         )
+
 
     def execute(self) -> Dict[str, Any]:
         """
