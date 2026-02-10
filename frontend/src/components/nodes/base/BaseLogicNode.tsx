@@ -1,9 +1,39 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "reactflow";
-import { Calculator } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const LogicNode = ({ data, selected }: NodeProps) => {
+/**
+ * Props for BaseLogicNode component
+ *
+ * @extends NodeProps - Standard ReactFlow node props
+ * @property {string} label - Display label for the node
+ * @property {LucideIcon} symbol - Icon component to display
+ * @property {React.ReactNode} children - Logic configuration UI to render
+ */
+interface BaseLogicNodeProps extends NodeProps {
+  label: string;
+  symbol: LucideIcon;
+  children?: React.ReactNode;
+}
+
+/**
+ * BaseLogicNode - Base component for all logic/processing nodes
+ *
+ * Provides consistent styling and structure for logic nodes with:
+ * - Status indicator LED (idle/running/success/error)
+ * - Icon and label header
+ * - Two input handles on the left (id: "a" at 30%, "b" at 70%)
+ * - Single output handle on the right
+ * - Customizable logic configuration UI via children
+ */
+const BaseLogicNode = ({
+  data,
+  selected,
+  label,
+  symbol: Icon,
+  children,
+}: BaseLogicNodeProps) => {
   const statusColor = {
     idle: "bg-zinc-400",
     running: "bg-blue-500",
@@ -36,16 +66,14 @@ const LogicNode = ({ data, selected }: NodeProps) => {
       <div className="flex items-center gap-2 mb-2">
         <div className={cn("w-2 h-2 rounded-full", statusColor)} />
         <div className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded-sm">
-          <Calculator className="w-3 h-3 text-zinc-500" />
+          <Icon className="w-3 h-3 text-zinc-500" />
         </div>
         <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-tighter">
-          Math
+          {label}
         </span>
       </div>
 
-      <div className="text-xs text-zinc-500 dark:text-zinc-400">
-        Performs operation
-      </div>
+      <div className="flex flex-col gap-1">{children}</div>
 
       <Handle
         type="source"
@@ -56,4 +84,4 @@ const LogicNode = ({ data, selected }: NodeProps) => {
   );
 };
 
-export default memo(LogicNode);
+export default memo(BaseLogicNode);

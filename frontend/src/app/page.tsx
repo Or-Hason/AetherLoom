@@ -11,9 +11,8 @@ import ReactFlow, {
 import "reactflow/dist/style.css";
 import useFlowStore from "@/store/useFlowStore";
 import Sidebar from "@/components/Sidebar";
-import InputNode from "@/components/nodes/InputNode";
-import LogicNode from "@/components/nodes/LogicNode";
-import OutputNode from "@/components/nodes/OutputNode";
+import TextInputNode from "@/components/nodes/io/TextInputNode";
+import NumberInputNode from "@/components/nodes/io/NumberInputNode";
 import { isValidConnection } from "@/utils/flowValidation";
 
 export default function Home() {
@@ -22,9 +21,10 @@ export default function Home() {
 
   const nodeTypes = useMemo(
     () => ({
-      text_input: InputNode,
-      math_operation: LogicNode,
-      display_result: OutputNode,
+      text_input: TextInputNode,
+      number_input: NumberInputNode,
+      // text_output: TextOutputNode,
+      // number_output: NumberOutputNode,
     }),
     [],
   );

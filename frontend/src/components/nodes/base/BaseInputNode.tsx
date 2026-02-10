@@ -1,9 +1,38 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "reactflow";
-import { Type } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const InputNode = ({ data, selected }: NodeProps) => {
+/**
+ * Props for BaseInputNode component
+ *
+ * @extends NodeProps - Standard ReactFlow node props
+ * @property {string} label - Display label for the node
+ * @property {LucideIcon} symbol - Icon component to display
+ * @property {React.ReactNode} children - Input field(s) to render
+ */
+interface BaseInputNodeProps extends NodeProps {
+  label: string;
+  symbol: LucideIcon;
+  children?: React.ReactNode;
+}
+
+/**
+ * BaseInputNode - Base component for all input nodes
+ *
+ * Provides consistent styling and structure for input nodes with:
+ * - Status indicator LED (idle/running/success/error)
+ * - Icon and label header
+ * - Single output handle on the right
+ * - Customizable input field(s) via children
+ */
+const BaseInputNode = ({
+  data,
+  selected,
+  label,
+  symbol: Icon,
+  children,
+}: BaseInputNodeProps) => {
   const statusColor = {
     idle: "bg-zinc-400",
     running: "bg-blue-500",
@@ -21,16 +50,14 @@ const InputNode = ({ data, selected }: NodeProps) => {
       <div className="flex items-center gap-2 mb-2">
         <div className={cn("w-2 h-2 rounded-full", statusColor)} />
         <div className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded-sm">
-          <Type className="w-3 h-3 text-zinc-500" />
+          <Icon className="w-3 h-3 text-zinc-500" />
         </div>
         <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-tighter">
-          Input
+          {label}
         </span>
       </div>
 
-      <div className="text-xs text-zinc-500 dark:text-zinc-400">
-        Provides text data
-      </div>
+      <div className="flex flex-col gap-1">{children}</div>
 
       <Handle
         type="source"
@@ -41,4 +68,4 @@ const InputNode = ({ data, selected }: NodeProps) => {
   );
 };
 
-export default memo(InputNode);
+export default memo(BaseInputNode);

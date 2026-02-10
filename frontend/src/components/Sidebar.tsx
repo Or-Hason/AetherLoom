@@ -1,5 +1,5 @@
 import React from "react";
-import { Type, Calculator, MonitorPlay } from "lucide-react";
+import { Type, Calculator, MonitorPlay, Hash } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
@@ -14,18 +14,23 @@ export default function Sidebar() {
   const categories = [
     {
       title: "Inputs",
-      items: [{ type: "text_input", label: "Text Input", icon: Type }],
+      items: [
+        { type: "text_input", label: "Text Input", icon: Type },
+        { type: "number_input", label: "Number Input", icon: Hash },
+      ],
     },
     {
       title: "Logic",
       items: [
+        { type: "text_concat", label: "Text Concat", icon: Type },
         { type: "math_operation", label: "Math Operation", icon: Calculator },
       ],
     },
     {
       title: "Outputs",
       items: [
-        { type: "display_result", label: "Display Result", icon: MonitorPlay },
+        { type: "text_output", label: "Text Output", icon: MonitorPlay },
+        { type: "number_output", label: "Number Output", icon: MonitorPlay },
       ],
     },
   ];

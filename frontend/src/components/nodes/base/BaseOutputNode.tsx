@@ -1,9 +1,38 @@
 import React, { memo } from "react";
 import { Handle, Position, NodeProps } from "reactflow";
-import { MonitorPlay } from "lucide-react";
+import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const OutputNode = ({ data, selected }: NodeProps) => {
+/**
+ * Props for BaseOutputNode component
+ *
+ * @extends NodeProps - Standard ReactFlow node props
+ * @property {string} label - Display label for the node
+ * @property {LucideIcon} symbol - Icon component to display
+ * @property {React.ReactNode} children - Output display field(s) to render
+ */
+interface BaseOutputNodeProps extends NodeProps {
+  label: string;
+  symbol: LucideIcon;
+  children?: React.ReactNode;
+}
+
+/**
+ * BaseOutputNode - Base component for all output nodes
+ *
+ * Provides consistent styling and structure for output nodes with:
+ * - Status indicator LED (idle/running/success/error)
+ * - Icon and label header
+ * - Single input handle on the left
+ * - Customizable output display field(s) via children
+ */
+const BaseOutputNode = ({
+  data,
+  selected,
+  label,
+  symbol: Icon,
+  children,
+}: BaseOutputNodeProps) => {
   const statusColor = {
     idle: "bg-zinc-400",
     running: "bg-blue-500",
@@ -27,18 +56,16 @@ const OutputNode = ({ data, selected }: NodeProps) => {
       <div className="flex items-center gap-2 mb-2">
         <div className={cn("w-2 h-2 rounded-full", statusColor)} />
         <div className="bg-zinc-100 dark:bg-zinc-800 p-1 rounded-sm">
-          <MonitorPlay className="w-3 h-3 text-zinc-500" />
+          <Icon className="w-3 h-3 text-zinc-500" />
         </div>
         <span className="text-sm font-bold text-zinc-900 dark:text-zinc-100 uppercase tracking-tighter">
-          Output
+          {label}
         </span>
       </div>
 
-      <div className="text-xs text-zinc-500 dark:text-zinc-400">
-        Displays final result
-      </div>
+      <div className="flex flex-col gap-1">{children}</div>
     </div>
   );
 };
 
-export default memo(OutputNode);
+export default memo(BaseOutputNode);
