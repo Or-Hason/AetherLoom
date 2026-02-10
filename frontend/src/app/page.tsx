@@ -13,6 +13,8 @@ import useFlowStore from "@/store/useFlowStore";
 import Sidebar from "@/components/Sidebar";
 import TextInputNode from "@/components/nodes/io/TextInputNode";
 import NumberInputNode from "@/components/nodes/io/NumberInputNode";
+import TextOutputNode from "@/components/nodes/io/TextOutputNode";
+import NumberOutputNode from "@/components/nodes/io/NumberOutputNode";
 import { isValidConnection } from "@/utils/flowValidation";
 
 export default function Home() {
@@ -23,8 +25,8 @@ export default function Home() {
     () => ({
       text_input: TextInputNode,
       number_input: NumberInputNode,
-      // text_output: TextOutputNode,
-      // number_output: NumberOutputNode,
+      text_output: TextOutputNode,
+      number_output: NumberOutputNode,
     }),
     [],
   );
