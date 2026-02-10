@@ -63,6 +63,7 @@ class TextOutputBlock(BaseBlock):
                         formatted_text = json.dumps({"value": input_value}, indent=2)
                 except (TypeError, ValueError):
                     # Fall back to string conversion
+                    logger.warning(f"TextOutputBlock {self.node_id} failed to format JSON: {str(input_value)}")
                     formatted_text = str(input_value)
             
             elif output_format == "pretty":
@@ -180,7 +181,7 @@ class NumberOutputBlock(BaseBlock):
             if not is_special:
                 # Get formatting configuration
                 decimal_places = self.config.get("decimal_places")
-                use_thousands_sep = self.config.get("use_thousands_separator", False)
+                use_thousands_sep = self.config.get("use_thousands_separator", True)
                 use_scientific = self.config.get("scientific_notation", False)
                 sci_threshold = self.config.get("scientific_threshold", 1e6)
                 

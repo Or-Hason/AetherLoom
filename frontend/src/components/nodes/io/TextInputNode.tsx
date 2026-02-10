@@ -24,15 +24,17 @@ export const TextInputNode = (props: NodeProps) => {
       const maxLength = data.config?.max_length;
 
       // Validate max_length constraint
-      if (maxLength && newValue.length > maxLength) {
+      if (maxLength && newValue.length >= maxLength) {
         setValidationError(
-          `Text exceeds maximum length of ${maxLength} characters`,
+          `Text reached maximum length of ${maxLength} characters`,
         );
-        return;
+        if (newValue.length > maxLength) {
+          return;
+        }
+      } else {
+        // Clear validation error and update value
+        setValidationError(null);
       }
-
-      // Clear validation error and update value
-      setValidationError(null);
       updateNodeData(id, { value: newValue });
     },
     [id, data.config?.max_length, updateNodeData],
