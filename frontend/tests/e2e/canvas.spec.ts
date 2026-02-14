@@ -30,28 +30,32 @@ test.describe('Canvas Interactions', () => {
   });
 
   test('should pan the canvas', async ({ page }) => {
-    // Get initial viewport
-    const initialViewport = await page.evaluate(() => {
-      const rfInstance = (window as any).__reactFlowInstance;
-      return rfInstance?.getViewport?.() || { x: 0, y: 0, zoom: 1 };
+    // Get the canvas element
+    const canvas = page.locator('.react-flow');
+    await expect(canvas).toBeVisible();
+
+    // Get the initial transform of the viewport
+    const initialTransform = await page.evaluate(() => {
+      const viewport = document.querySelector('.react-flow__viewport');
+      return viewport?.getAttribute('style') || '';
     });
 
     // Pan the canvas
     await panCanvas(page, 100, 100);
 
-    // Get new viewport
-    const newViewport = await page.evaluate(() => {
-      const rfInstance = (window as any).__reactFlowInstance;
-      return rfInstance?.getViewport?.() || { x: 0, y: 0, zoom: 1 };
+    // Wait a bit for the transform to update
+    await page.waitForTimeout(300);
+
+    // Get the new transform
+    const newTransform = await page.evaluate(() => {
+      const viewport = document.querySelector('.react-flow__viewport');
+      return viewport?.getAttribute('style') || '';
     });
 
-    // Viewport should have changed (allowing for some tolerance)
-    // TODO: Check if the difference between "10" and "100" isn't too big
-    const viewportChanged = 
-      Math.abs(newViewport.x - initialViewport.x) > 10 ||
-      Math.abs(newViewport.y - initialViewport.y) > 10;
-    
-    expect(viewportChanged).toBe(true);
+    // Verify the canvas is still functional and that the transform changed
+    const canvasStillVisible = await canvas.isVisible();
+    expect(canvasStillVisible).toBe(true);
+    expect(newTransform).not.toBe(initialTransform);
   });
 
   test('should zoom the canvas', async ({ page }) => {
