@@ -30,7 +30,7 @@ test.describe('Node Operations', () => {
     await expect(sidebarItems.first()).toBeVisible();
     
     // For now, just verify the sidebar structure exists
-    // Actual drag-and-drop will be tested when nodes are fully implemented
+    // TODO: Actual drag-and-drop will be tested when nodes are fully implemented
     await expectNodeCount(page, 0);
   });
 
@@ -38,6 +38,7 @@ test.describe('Node Operations', () => {
     await expectNodeCount(page, 0);
     
     // Verify no nodes are present
+    // TODO: Check if this test is necessary, as it looks like it's just repeating the same 2 lines
     const nodes = page.locator('.react-flow__node');
     await expect(nodes).toHaveCount(0);
   });

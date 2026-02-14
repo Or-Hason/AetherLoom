@@ -62,6 +62,7 @@ test.describe('Node Connections', () => {
     // Click on edge and delete
     const edge = page.locator('.react-flow__edge').first();
     await edge.click();
+    // TODO: Check if it should be "Backspace" instead of "Delete"
     await page.keyboard.press('Delete');
     
     // Verify edge is deleted
@@ -71,6 +72,8 @@ test.describe('Node Connections', () => {
   test.skip('should prevent cycles', async ({ page }) => {
     // This test is skipped until cycle detection is implemented
     // TODO: Implement when cycle detection is active
+
+    // TODO: Does this test even make sense? Maybe it should be performed with nodes with more than one input/output?
     
     // Create three nodes in a potential cycle
     await dragNodeFromSidebar(page, 'text_input', { x: 100, y: 100 });

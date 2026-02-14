@@ -46,6 +46,7 @@ test.describe('Canvas Interactions', () => {
     });
 
     // Viewport should have changed (allowing for some tolerance)
+    // TODO: Check if the difference between "10" and "100" isn't too big
     const viewportChanged = 
       Math.abs(newViewport.x - initialViewport.x) > 10 ||
       Math.abs(newViewport.y - initialViewport.y) > 10;
@@ -73,6 +74,7 @@ test.describe('Canvas Interactions', () => {
     expect(newZoom).toBeGreaterThan(initialZoom * 0.9);
   });
 
+  // TODO: Check if this test is necessary, as right now he doesn't really check for the controls visibility
   test('should have React Flow controls visible', async ({ page }) => {
     // Check for zoom controls or other React Flow UI elements
     const controls = page.locator('.react-flow__controls').or(
