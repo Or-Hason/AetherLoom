@@ -17,7 +17,7 @@ import BaseOutputNode from "../base/BaseOutputNode";
  * - Truncation indicator when text exceeds max_display_length
  */
 export const TextOutputNode = (props: NodeProps) => {
-  const { data } = props;
+  const { id, data } = props;
   const [copied, setCopied] = useState(false);
 
   const handleCopy = useCallback(async () => {
@@ -45,6 +45,7 @@ export const TextOutputNode = (props: NodeProps) => {
     let formattedText: string;
 
     // Apply formatting
+    // TODO: [Refactor] Unified Schema for I/O Blocks - Sync output formatting with backend shared schema to avoid logic duplication.
     if (format === "json") {
       try {
         if (typeof rawValue === "object") {
@@ -77,11 +78,12 @@ export const TextOutputNode = (props: NodeProps) => {
   const format = data.config?.format || "plain";
   const isEmpty = !data.value && data.value !== 0 && data.value !== false;
 
+  // TODO: Use "cn" library on all the nodes, like used in the Base blocks.
   return (
     <BaseOutputNode {...props} label="Text Output" symbol={FileText}>
       <div className="flex flex-col gap-2">
         {/* Output display */}
-        <div className="relative">
+        <div className="relative" data-testid={`text-output-display-${id}`}>
           <pre
             className={`
               text-xs p-2 rounded border
