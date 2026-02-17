@@ -20,7 +20,7 @@ import BaseOutputNode from "../base/BaseOutputNode";
  * - Scientific notation support
  */
 export const NumberOutputNode = (props: NodeProps) => {
-  const { data } = props;
+  const { id, data } = props;
 
   const formatNumber = useMemo(() => {
     const rawValue = data.value;
@@ -167,6 +167,7 @@ export const NumberOutputNode = (props: NodeProps) => {
       <div className="flex flex-col gap-2">
         {/* Number display */}
         <div
+          data-testid={`number-output-display-${id}`}
           className={`
             text-lg font-mono font-semibold p-2 rounded border text-center
             ${

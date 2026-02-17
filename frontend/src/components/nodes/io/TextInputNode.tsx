@@ -20,8 +20,14 @@ export const TextInputNode = (props: NodeProps) => {
 
   const handleChange = useCallback(
     (e: React.ChangeEvent<HTMLInputElement>) => {
-      const newValue = e.target.value;
+      let newValue = e.target.value;
       const maxLength = data.config?.max_length;
+
+      // Sanitize input to prevent XSS attacks
+      // Remove HTML tags and script content
+      newValue = newValue
+        .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, "")
+        .replace(/<[^>]*>/g, "");
 
       // Validate max_length constraint
       if (maxLength && newValue.length >= maxLength) {
@@ -51,6 +57,7 @@ export const TextInputNode = (props: NodeProps) => {
           value={data.value ?? ""}
           onChange={handleChange}
           className="nodrag w-full p-1 text-sm border rounded bg-stone-50 dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
+          data-testid={`text-input-field-${id}`}
           placeholder="Enter text..."
           aria-label="Text input field"
           aria-invalid={!!validationError}

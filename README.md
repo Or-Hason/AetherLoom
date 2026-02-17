@@ -339,8 +339,9 @@ The foundation of AetherLoom, establishing core visual programming capabilities.
 - [x] Zustand state management
 - [x] FastAPI backend with Pydantic schemas
 - [x] Docker Compose development environment
-- [ ] Graph execution engine (topological sort)
-- [ ] Core I/O components (text, number)
+- [x] Graph execution engine (topological sort)
+- [x] Playwright Test Framework for Frontend Testing
+- [x] Core I/O components (text, number)
 - [ ] Math & text operation blocks
 - [ ] Type-safe connection validation
 - [ ] Execution results & observability logs

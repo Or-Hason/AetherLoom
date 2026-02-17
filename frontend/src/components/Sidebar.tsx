@@ -61,6 +61,7 @@ export default function Sidebar() {
               {category.items.map((item) => (
                 <div
                   key={item.type}
+                  data-node-type={item.type}  // TODO: Check the duplication with the "key" attribute. May created only for tests that looked for this specific attribute name.
                   onDragStart={(event) => onDragStart(event, item.type)}
                   draggable
                   className={cn(

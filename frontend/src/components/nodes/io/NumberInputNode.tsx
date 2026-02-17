@@ -82,6 +82,27 @@ export const NumberInputNode = (props: NodeProps) => {
     [id, data.config, updateNodeData],
   );
 
+  // Prevent invalid characters for integer inputs at keyboard level
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent<HTMLInputElement>) => {
+      const numberType = data.config?.number_type || "auto";
+
+      // Only apply restrictions for integer type
+      if (numberType === "int") {
+        // Prevent decimal point, 'e', 'E', and '+' for integers
+        if ([".", "e", "E", "+"].includes(e.key)) {
+          e.preventDefault();
+          setValidationError(
+            "Integer values cannot contain decimal points or scientific notation",
+          );
+          // Clear error after 2 seconds
+          setTimeout(() => setValidationError(null), 2000);
+        }
+      }
+    },
+    [data.config?.number_type],
+  );
+
   const { min_value, max_value, number_type } = data.config || {};
   const hasConstraints = min_value !== undefined || max_value !== undefined;
 
@@ -90,11 +111,14 @@ export const NumberInputNode = (props: NodeProps) => {
       <div className="flex flex-col gap-1">
         <input
           type="number"
+          inputMode={number_type === "int" ? "numeric" : "decimal"}
           value={data.value ?? ""}
           onChange={handleChange}
+          onKeyDown={handleKeyDown}
           step={number_type === "int" ? "1" : "any"}
           min={min_value}
           max={max_value}
+          data-testid={`number-input-field-${id}`}
           className="nodrag w-full p-1 text-sm border rounded bg-stone-50 dark:bg-zinc-800 dark:border-zinc-700 focus:outline-none focus:ring-1 focus:ring-blue-500"
           placeholder="Enter number..."
           aria-label="Number input field"
