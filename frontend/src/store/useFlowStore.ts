@@ -61,4 +61,9 @@ const useFlowStore = create<FlowState>((set, get) => ({
   },
 }));
 
+// Expose store for testing (only in non-production)
+if (typeof window !== 'undefined' && process.env.NODE_ENV !== 'production') {
+  (window as any).__flowStore = useFlowStore;
+}
+
 export default useFlowStore;

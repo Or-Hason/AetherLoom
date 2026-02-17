@@ -113,3 +113,44 @@ export async function countEdges(page: Page): Promise<number> {
   const edges = page.locator('.react-flow__edge');
   return await edges.count();
 }
+
+/**
+ * Programmatically create a node on the canvas by directly adding to the store 
+ * (This is more reliable than drag-and-drop for testing)
+ * @param page - Playwright page object
+ * @param nodeType - Type of node to create (e.g., 'text_input', 'number_input')
+ * @param position - Position on canvas {x, y}
+ * @param data - Optional node data
+ */
+export async function createNodeProgrammatically(
+  page: Page,
+  nodeType: string,
+  position: { x: number; y: number },
+  data: any = {}
+): Promise<string> {
+  return await page.evaluate(
+    ({ type, pos, nodeData }) => {
+      const store = (window as any).__flowStore;
+      if (!store) {
+        throw new Error('Flow store not found');
+      }
+
+      const state = store.getState();
+      const nodeId = `${type}-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+
+      const newNode = {
+        id: nodeId,
+        type,
+        position: pos,
+        data: nodeData,
+      };
+
+      store.setState({
+        nodes: [...state.nodes, newNode],
+      });
+
+      return nodeId;
+    },
+    { type: nodeType, pos: position, nodeData: data }
+  );
+}
