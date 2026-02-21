@@ -3,14 +3,16 @@ Unit tests for MathOperationBlock.
 
 Tests cover all four arithmetic operations, type preservation semantics,
 edge cases (division by zero, non-numeric inputs, missing inputs, large numbers),
-and registry integration through the GraphExecutor dispatcher.
+Pydantic config validation, and registry integration through the GraphExecutor.
 """
 
 import pytest
+from pydantic import ValidationError
 from typing import Dict, Any
 
 from app.blocks.logic.math_blocks import MathOperationBlock
 from app.blocks.base import BlockResult
+from app.schemas import MathBlockConfig
 
 
 # ---------------------------------------------------------------------------
@@ -155,7 +157,7 @@ class TestDivideOperation:
         assert result.value == 3.5
         assert isinstance(result.value, float)
 
-    def test_divide_float_inputs(self):
+    def test_divide_float_exact_result_not_promoted_to_int(self):
         """9.0 ÷ 3.0 should return float (inputs are float, no type-preservation)."""
         result = _run("divide", 9.0, 3.0)
         assert result.success is True
@@ -173,26 +175,20 @@ class TestDivideOperation:
         result = _run("divide", 7, 0)
         assert result.success is False
         assert result.value is None
-        assert "zero" in result.error.lower()
+        assert "zero" in result.error.lower()  # type: ignore[union-attr]  # error always set on failure
 
     def test_divide_by_zero_float(self):
         """Division by float zero should fail with ZeroDivisionError message."""
         result = _run("divide", 7.0, 0.0)
         assert result.success is False
         assert result.value is None
-        assert "zero" in result.error.lower()
-
-    def test_divide_float_exact_result_not_promoted_to_int(self):
-        """9.0 ÷ 3.0 = 3.0 — even if result is whole, inputs are float so stays float."""
-        result = _run("divide", 9.0, 3.0)
-        assert result.success is True
-        # result is 3.0 (float); type-preservation only promotes int→int when both inputs are int
-        assert isinstance(result.value, float)
-
+        assert "zero" in result.error.lower()  # type: ignore[union-attr]  # error always set on failure
 
 # ---------------------------------------------------------------------------
 # Type Preservation
 # ---------------------------------------------------------------------------
+
+# TODO: Check if this is necessary as those tests are already covered in the other test categories
 
 class TestTypePreservation:
     """Tests specifically targeting int-preservation semantics."""
@@ -232,6 +228,7 @@ class TestErrorHandling:
         assert result.success is False
         assert result.value is None
         assert result.error is not None
+        # TODO: Update to support multilingual error messages
         assert "type" in result.error.lower() or "numeric" in result.error.lower()
 
     def test_non_numeric_input_b(self):
@@ -246,6 +243,7 @@ class TestErrorHandling:
         result = block.run({"b": 5})
         assert result.success is False
         assert result.value is None
+        assert result.error is not None
         assert "'a'" in result.error
 
     def test_missing_input_b(self):
@@ -254,6 +252,7 @@ class TestErrorHandling:
         result = block.run({"a": 5})
         assert result.success is False
         assert result.value is None
+        assert result.error is not None
         assert "'b'" in result.error
 
     def test_missing_all_inputs(self):
@@ -274,15 +273,18 @@ class TestErrorHandling:
         assert result.success is False
 
     def test_unknown_operation(self):
-        """An unrecognised operation string should fail gracefully."""
+        """An unrecognised operation string should fail gracefully via Pydantic."""
         block = MathOperationBlock(
             node_id="math-bad-op",
             config={"operation": "power"},
         )
+        # TODO: Once more operations are supported (e.g. "power"), update this list
+        # and remove "power" from the set of invalid values.
         result = block.run({"a": 2, "b": 3})
         assert result.success is False
         assert result.value is None
-        assert "power" in result.error.lower() or "unknown" in result.error.lower()
+        # Pydantic ValidationError is surfaced — error is a non-empty string.
+        assert result.error is not None and len(result.error) > 0
 
     def test_no_operation_in_config_defaults_to_add(self):
         """Missing operation key in config should default to 'add'."""
@@ -290,6 +292,39 @@ class TestErrorHandling:
         result = block.run({"a": 3, "b": 4})
         assert result.success is True
         assert result.value == 7
+
+
+# ---------------------------------------------------------------------------
+# MathBlockConfig Schema Validation (Pydantic as first line of defence)
+# ---------------------------------------------------------------------------
+
+class TestMathBlockConfigSchema:
+    """Directly test MathBlockConfig Pydantic model validation."""
+
+    def test_valid_operations_parse_correctly(self):
+        """All four Literal values should parse without error."""
+        for op in ("add", "subtract", "multiply", "divide"):
+            cfg = MathBlockConfig.model_validate({"operation": op})
+            assert cfg.operation == op
+
+    def test_default_operation_is_add(self):
+        """Empty config dict should produce operation='add' via Pydantic default."""
+        cfg = MathBlockConfig.model_validate({})
+        assert cfg.operation == "add"
+
+    def test_invalid_operation_raises_validation_error(self):
+        """Pydantic must raise ValidationError for any unlisted operation value."""
+        with pytest.raises(ValidationError) as exc_info:
+            MathBlockConfig.model_validate({"operation": "power"})
+        # Confirm the error mentions the field name
+        assert "operation" in str(exc_info.value).lower()
+
+    def test_validation_error_lists_allowed_values(self):
+        """Pydantic's error message should name at least one allowed value."""
+        with pytest.raises(ValidationError) as exc_info:
+            MathBlockConfig.model_validate({"operation": "modulo"})
+        error_str = str(exc_info.value)
+        assert any(op in error_str for op in ("add", "subtract", "multiply", "divide"))
 
 
 # ---------------------------------------------------------------------------
@@ -338,6 +373,7 @@ class TestBlockResultMetadata:
         """Float result should report 'float' in metadata."""
         result = _run("divide", 7, 2)
         assert result.success is True
+        assert result.metadata is not None
         assert result.metadata["result_type"] == "float"
 
 

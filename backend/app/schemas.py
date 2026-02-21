@@ -1,5 +1,5 @@
 from pydantic import BaseModel, Field
-from typing import List, Optional, Any, Dict
+from typing import List, Literal, Optional, Any, Dict
 from uuid import UUID
 
 # strict typing using Pydantic models
@@ -99,3 +99,37 @@ class NumberOutputConfig(BaseModel):
     use_thousands_separator: bool = False
     scientific_notation: bool = False
     scientific_threshold: float = Field(1e6, gt=0, description="Threshold for scientific notation")
+
+
+# Canonical type alias — used by both MathBlockConfig and MathOperationBlock for
+# strict typing; extending operations in the future requires only this one-liner change.
+MathOperation = Literal["add", "subtract", "multiply", "divide"]
+
+
+class MathBlockConfig(BaseModel):
+    """
+    Configuration schema for Math Operation blocks.
+
+    Pydantic validates ``operation`` against the ``MathOperation`` Literal at
+    parse time.
+
+    Attributes:
+        operation: The arithmetic operation to perform. Must be one of
+            ``"add"``, ``"subtract"``, ``"multiply"``, or ``"divide"``.
+    """
+
+    operation: MathOperation = "add"
+
+
+class TextJoinConfig(BaseModel):
+    """
+    Configuration schema for Text Join blocks.
+
+    Attributes:
+        separator: String used to join the two text inputs. Defaults to a
+            single space. Accepts any string including ``"\\n"``, ``"\\t"``,
+            and ``""`` (empty string for concatenation).
+    """
+
+    separator: str = " "
+
