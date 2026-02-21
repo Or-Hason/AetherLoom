@@ -3,7 +3,7 @@ Unit tests for Input Block processors (TextInputBlock, NumberInputBlock).
 """
 
 import pytest
-from app.blocks.input_blocks import TextInputBlock, NumberInputBlock
+from app.blocks.io.input_blocks import TextInputBlock, NumberInputBlock
 from app.blocks.base import BlockResult
 
 

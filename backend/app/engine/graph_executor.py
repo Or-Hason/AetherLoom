@@ -11,7 +11,7 @@ from typing import Dict, List, Any, Set, Deque
 from collections import deque, defaultdict
 
 from app.schemas import Node, Edge, FlowExecutionRequest
-from app.blocks.base import BaseBlock, BlockResult
+from app.blocks.base import BaseBlock, BlockResult  # noqa: F401 — BlockResult used in type hints
 
 logger = logging.getLogger(__name__)
 
@@ -165,16 +165,18 @@ class GraphExecutor:
         Raises:
             NotImplementedError: If the node type is not yet implemented
         """
-        # Import block types
-        from app.blocks.input_blocks import TextInputBlock, NumberInputBlock
-        from app.blocks.output_blocks import TextOutputBlock, NumberOutputBlock
-        
+        # Import block types from their respective sub-packages
+        from app.blocks.io.input_blocks import TextInputBlock, NumberInputBlock
+        from app.blocks.io.output_blocks import TextOutputBlock, NumberOutputBlock
+        from app.blocks.logic.math_blocks import MathOperationBlock
+
         # Block registry mapping node types to block classes
         BLOCK_REGISTRY = {
             "text_input": TextInputBlock,
             "number_input": NumberInputBlock,
             "text_output": TextOutputBlock,
             "number_output": NumberOutputBlock,
+            "math_operation": MathOperationBlock,
         }
         
         # Get the block class for this node type
