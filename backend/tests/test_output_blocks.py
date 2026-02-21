@@ -3,7 +3,7 @@ Unit tests for Output Block processors (TextOutputBlock, NumberOutputBlock).
 """
 
 import pytest
-from app.blocks.output_blocks import TextOutputBlock, NumberOutputBlock
+from app.blocks.io.output_blocks import TextOutputBlock, NumberOutputBlock
 from app.blocks.base import BlockResult
 
 
