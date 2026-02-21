@@ -16,6 +16,7 @@ import NumberInputNode from "@/components/nodes/io/NumberInputNode";
 import TextOutputNode from "@/components/nodes/io/TextOutputNode";
 import NumberOutputNode from "@/components/nodes/io/NumberOutputNode";
 import MathOperationNode from "@/components/nodes/logic/MathOperationNode";
+import TextJoinNode from "@/components/nodes/logic/TextJoinNode";
 import { isValidConnection } from "@/utils/flowValidation";
 
 export default function Home() {
@@ -29,6 +30,7 @@ export default function Home() {
       text_output: TextOutputNode,
       number_output: NumberOutputNode,
       math_operation: MathOperationNode,
+      text_join: TextJoinNode,
     }),
     [],
   );
