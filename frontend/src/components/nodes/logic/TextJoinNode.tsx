@@ -4,6 +4,7 @@ import { Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 import useFlowStore from "@/store/useFlowStore";
 import BaseLogicNode from "../base/BaseLogicNode";
+import { Input } from "@/components/ui/input";
 
 // ---------------------------------------------------------------------------
 // Separator preset definitions
@@ -52,7 +53,6 @@ const PREVIEW_MAX_LENGTH = 28;
 function formatSeparatorForPreview(separator: string): string {
   if (separator === "\n") return "↵";
   if (separator === "\t") return "→";
-  if (separator === "") return "∅";
   return separator;
 }
 
@@ -154,7 +154,7 @@ export const TextJoinNode = (props: NodeProps) => {
           >
             Separator
           </label>
-          <input
+          <Input
             id={`text-join-separator-${id}`}
             type="text"
             value={localSeparator}
@@ -162,13 +162,7 @@ export const TextJoinNode = (props: NodeProps) => {
             aria-label="Separator character"
             data-testid={`text-join-separator-input-${id}`}
             placeholder='e.g. ", " or "\n"'
-            className={cn(
-              "nodrag h-8 w-full rounded-md border border-zinc-200 dark:border-zinc-700",
-              "bg-white dark:bg-zinc-800 px-2 text-xs text-zinc-900 dark:text-zinc-100",
-              "placeholder:text-zinc-400 dark:placeholder:text-zinc-500",
-              "focus:outline-none focus:ring-1 focus:ring-zinc-400 dark:focus:ring-zinc-500",
-              "transition-colors",
-            )}
+            className="nodrag h-8 text-xs"
           />
         </div>
 
