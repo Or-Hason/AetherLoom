@@ -1,5 +1,5 @@
 import React from "react";
-import { Type, Calculator, MonitorPlay, Hash } from "lucide-react";
+import { Type, Calculator, MonitorPlay, Hash, Link } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 export default function Sidebar() {
@@ -22,7 +22,7 @@ export default function Sidebar() {
     {
       title: "Logic",
       items: [
-        { type: "text_concat", label: "Text Concat", icon: Type },
+        { type: "text_join", label: "Text Join", icon: Link },
         { type: "math_operation", label: "Math Operation", icon: Calculator },
       ],
     },
@@ -61,7 +61,7 @@ export default function Sidebar() {
               {category.items.map((item) => (
                 <div
                   key={item.type}
-                  data-node-type={item.type}  // TODO: Check the duplication with the "key" attribute. May created only for tests that looked for this specific attribute name.
+                  data-node-type={item.type} // TODO: Check the duplication with the "key" attribute. May created only for tests that looked for this specific attribute name.
                   onDragStart={(event) => onDragStart(event, item.type)}
                   draggable
                   className={cn(

@@ -514,3 +514,206 @@ test.describe('MathOperationNode', () => {
     }
   });
 });
+
+// ==========================================================================
+// TextJoinNode
+// ==========================================================================
+
+test.describe('TextJoinNode', () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto('/');
+    await page.waitForSelector('.react-flow', { timeout: 10000 });
+  });
+
+  test('should create text join node', async ({ page }) => {
+    await expectNodeCount(page, 0);
+
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await expectNodeCount(page, 1);
+    await expectNodeToExist(page, nodeId);
+  });
+
+  test('should render with Link icon and TEXT JOIN label', async ({ page }) => {
+    await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    // Label is uppercased by CSS
+    const label = page.locator('text=TEXT JOIN').first();
+    await expect(label).toBeVisible();
+
+    // lucide-react renders icons as <svg>
+    const icon = page.locator('.react-flow__node svg').first();
+    await expect(icon).toBeVisible();
+  });
+
+  test('should display status LED in idle state by default', async ({ page }) => {
+    await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    // BaseLogicNode renders bg-zinc-400 for "idle" status
+    const statusLED = page.locator('.react-flow__node .bg-zinc-400').first();
+    await expect(statusLED).toBeVisible();
+  });
+
+  test('should render separator input with default empty value', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const input = page.locator(`[data-testid="text-join-separator-input-${nodeId}"]`);
+    await expect(input).toBeVisible();
+
+    // Default separator is an empty string
+    await expect(input).toHaveValue('');
+  });
+
+  test('should change separator via input field', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const input = page.locator(`[data-testid="text-join-separator-input-${nodeId}"]`);
+    await input.fill('|');
+
+    await expect(input).toHaveValue('|');
+  });
+
+  test('should update Zustand store when separator changes', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const input = page.locator(`[data-testid="text-join-separator-input-${nodeId}"]`);
+    await input.fill('-');
+
+    // Allow React to flush the state update
+    await page.waitForTimeout(300);
+
+    const storedSeparator = await page.evaluate((id) => {
+      const store = (window as any).__flowStore?.getState?.();
+      const node = store?.nodes?.find((n: any) => n.id === id);
+      return node?.data?.config?.separator;
+    }, nodeId);
+
+    expect(storedSeparator).toBe('-');
+  });
+
+  test('should apply Space preset separator', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const spaceBtn = page.locator(`[data-testid="text-join-preset-space-${nodeId}"]`);
+    await spaceBtn.click();
+
+    await page.waitForTimeout(300);
+
+    const storedSeparator = await page.evaluate((id) => {
+      const store = (window as any).__flowStore?.getState?.();
+      const node = store?.nodes?.find((n: any) => n.id === id);
+      return node?.data?.config?.separator;
+    }, nodeId);
+
+    expect(storedSeparator).toBe(' ');
+  });
+
+  test('should apply Comma preset separator', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const commaBtn = page.locator(`[data-testid="text-join-preset-comma-${nodeId}"]`);
+    await commaBtn.click();
+
+    await page.waitForTimeout(300);
+
+    const storedSeparator = await page.evaluate((id) => {
+      const store = (window as any).__flowStore?.getState?.();
+      const node = store?.nodes?.find((n: any) => n.id === id);
+      return node?.data?.config?.separator;
+    }, nodeId);
+
+    expect(storedSeparator).toBe(', ');
+  });
+
+  test('should apply Newline preset separator', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const newlineBtn = page.locator(`[data-testid="text-join-preset-newline-${nodeId}"]`);
+    await newlineBtn.click();
+
+    await page.waitForTimeout(300);
+
+    const storedSeparator = await page.evaluate((id) => {
+      const store = (window as any).__flowStore?.getState?.();
+      const node = store?.nodes?.find((n: any) => n.id === id);
+      return node?.data?.config?.separator;
+    }, nodeId);
+
+    expect(storedSeparator).toBe('\\n');
+  });
+
+  test('should apply Empty preset separator', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(
+      page,
+      'text_join',
+      { x: 200, y: 200 },
+      { config: { separator: ',' } }, // start with comma so Empty is a real change
+    );
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const emptyBtn = page.locator(`[data-testid="text-join-preset-empty-${nodeId}"]`);
+    await emptyBtn.click();
+
+    await page.waitForTimeout(300);
+
+    const storedSeparator = await page.evaluate((id) => {
+      const store = (window as any).__flowStore?.getState?.();
+      const node = store?.nodes?.find((n: any) => n.id === id);
+      return node?.data?.config?.separator;
+    }, nodeId);
+
+    expect(storedSeparator).toBe('');
+  });
+
+  test('should highlight active preset button', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    // Click Comma preset
+    const commaBtn = page.locator(`[data-testid="text-join-preset-comma-${nodeId}"]`);
+    await commaBtn.click();
+    await page.waitForTimeout(200);
+
+    // aria-pressed should be "true" on the active button
+    await expect(commaBtn).toHaveAttribute('aria-pressed', 'true');
+
+    // The previously active Space preset should no longer be pressed
+    const spaceBtn = page.locator(`[data-testid="text-join-preset-space-${nodeId}"]`);
+    await expect(spaceBtn).toHaveAttribute('aria-pressed', 'false');
+  });
+
+  test('should have two input handles and one output handle', async ({ page }) => {
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+
+    await page.waitForSelector('.react-flow__node', { timeout: 5000 });
+
+    const node = page.locator(`[data-id="${nodeId}"]`);
+
+    // Two left-side target handles (id: "a" at 30%, "b" at 70%)
+    const targetHandles = node.locator('.react-flow__handle-left');
+    await expect(targetHandles).toHaveCount(2);
+
+    // One right-side source handle
+    const sourceHandles = node.locator('.react-flow__handle-right');
+    await expect(sourceHandles).toHaveCount(1);
+  });
+});
+
