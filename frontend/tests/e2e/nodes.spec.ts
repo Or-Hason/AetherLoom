@@ -558,7 +558,7 @@ test.describe('TextJoinNode', () => {
     await expect(statusLED).toBeVisible();
   });
 
-  test('should render separator input with default space value', async ({ page }) => {
+  test('should render separator input with default empty value', async ({ page }) => {
     const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
 
     await page.waitForSelector('.react-flow__node', { timeout: 5000 });
@@ -566,8 +566,8 @@ test.describe('TextJoinNode', () => {
     const input = page.locator(`[data-testid="text-join-separator-input-${nodeId}"]`);
     await expect(input).toBeVisible();
 
-    // Default separator is a single space
-    await expect(input).toHaveValue(' ');
+    // Default separator is an empty string
+    await expect(input).toHaveValue('');
   });
 
   test('should change separator via input field', async ({ page }) => {
@@ -602,12 +602,7 @@ test.describe('TextJoinNode', () => {
   });
 
   test('should apply Space preset separator', async ({ page }) => {
-    const nodeId = await createNodeProgrammatically(
-      page,
-      'text_join',
-      { x: 200, y: 200 },
-      { config: { separator: ',' } }, // start with comma so Space is a real change
-    );
+    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
 
     await page.waitForSelector('.react-flow__node', { timeout: 5000 });
 
@@ -660,11 +655,16 @@ test.describe('TextJoinNode', () => {
       return node?.data?.config?.separator;
     }, nodeId);
 
-    expect(storedSeparator).toBe('\n');
+    expect(storedSeparator).toBe('\\n');
   });
 
   test('should apply Empty preset separator', async ({ page }) => {
-    const nodeId = await createNodeProgrammatically(page, 'text_join', { x: 200, y: 200 });
+    const nodeId = await createNodeProgrammatically(
+      page,
+      'text_join',
+      { x: 200, y: 200 },
+      { config: { separator: ',' } }, // start with comma so Empty is a real change
+    );
 
     await page.waitForSelector('.react-flow__node', { timeout: 5000 });
 

@@ -23,7 +23,12 @@ interface SeparatorPreset {
 }
 
 const SEPARATOR_PRESETS: SeparatorPreset[] = [
-  { label: "Space", value: " ", ariaLabel: "Space separator", testId: "space" },
+  {
+    label: "Space",
+    value: " ",
+    ariaLabel: "Space separator",
+    testId: "space",
+  },
   {
     label: "Comma",
     value: ", ",
@@ -32,11 +37,16 @@ const SEPARATOR_PRESETS: SeparatorPreset[] = [
   },
   {
     label: "Newline",
-    value: "\n",
+    value: "\\n",
     ariaLabel: "Newline separator",
     testId: "newline",
   },
-  { label: "Empty", value: "", ariaLabel: "Empty separator", testId: "empty" },
+  {
+    label: "Empty",
+    value: "",
+    ariaLabel: "Empty separator",
+    testId: "empty",
+  },
 ];
 
 /** Maximum characters shown in the live preview before truncation. */
@@ -51,8 +61,8 @@ const PREVIEW_MAX_LENGTH = 28;
  * Converts special characters to visible glyphs so the preview is informative.
  */
 function formatSeparatorForPreview(separator: string): string {
-  if (separator === "\n") return "↵";
-  if (separator === "\t") return "→";
+  if (separator === "\\n") return "↵";
+  if (separator === "\\t") return "→";
   return separator;
 }
 
@@ -63,7 +73,7 @@ function buildPreview(separator: string): string {
   const sep = formatSeparatorForPreview(separator);
   const preview = `A${sep}B`;
   if (preview.length > PREVIEW_MAX_LENGTH) {
-    return preview.slice(0, PREVIEW_MAX_LENGTH) + "…";
+    return preview.slice(0, PREVIEW_MAX_LENGTH - 1) + "…" + preview.slice(-1);
   }
   return preview;
 }
@@ -97,9 +107,9 @@ export const TextJoinNode = (props: NodeProps) => {
   const { id, data } = props;
   const updateNodeData = useFlowStore((state) => state.updateNodeData);
 
-  // Derive separator from node config; fall back to a single space.
+  // Derive separator from node config; fall back to an empty string.
   const currentSeparator: string =
-    typeof data.config?.separator === "string" ? data.config.separator : " ";
+    typeof data.config?.separator === "string" ? data.config.separator : "";
 
   /**
    * Uncontrolled-to-controlled bridge: we keep local state purely for the

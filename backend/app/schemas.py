@@ -126,10 +126,10 @@ class TextJoinConfig(BaseModel):
     Configuration schema for Text Join blocks.
 
     Attributes:
-        separator: String used to join the two text inputs. Defaults to a
-            single space. Accepts any string including ``"\\n"``, ``"\\t"``,
+        separator: String used to join the two text inputs. Defaults to an
+            empty string. Accepts any string including ``"\\n"``, ``"\\t"``,
             and ``""`` (empty string for concatenation).
     """
 
-    separator: str = " "
+    separator: str = ""
 
