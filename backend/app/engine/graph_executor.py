@@ -169,6 +169,7 @@ class GraphExecutor:
         from app.blocks.io.input_blocks import TextInputBlock, NumberInputBlock
         from app.blocks.io.output_blocks import TextOutputBlock, NumberOutputBlock
         from app.blocks.logic.math_blocks import MathOperationBlock
+        from app.blocks.logic.text_blocks import TextJoinBlock
 
         # Block registry mapping node types to block classes
         BLOCK_REGISTRY = {
@@ -177,6 +178,7 @@ class GraphExecutor:
             "text_output": TextOutputBlock,
             "number_output": NumberOutputBlock,
             "math_operation": MathOperationBlock,
+            "text_join": TextJoinBlock,
         }
         
         # Get the block class for this node type
