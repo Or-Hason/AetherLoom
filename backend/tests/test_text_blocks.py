@@ -128,18 +128,28 @@ class TestTextJoinMultipleInputs:
 class TestTextJoinEdgeCases:
     """Edge cases: single-item, empty inputs, whitespace."""
 
-    def test_join_single_item(self):
+    def test_missing_handle_a(self):
+        """Missing required handle 'a' → success=False."""
+        block = _make_block(separator=" ")
+        result = block.run({"b": "only"})
+        assert result.success is False
+        assert result.error is not None
+        assert "a" in result.error
+
+    def test_missing_handle_b(self):
         """Only handle 'a' with no 'b' → KeyError (b required)."""
         block = _make_block(separator=" ")
         result = block.run({"a": "only"})
         assert result.success is False
-        assert "b" in result.error  # type: ignore[union-attr]
+        assert result.error is not None
+        assert "b" in result.error
 
     def test_empty_inputs_dict(self):
         """Empty {} → missing 'a' required handle."""
         result = _run({}, separator=" ")
         assert result.success is False
-        assert "a" in result.error  # type: ignore[union-attr]
+        assert result.error is not None
+        assert "a" in result.error
 
     def test_join_both_empty_strings(self):
         """['', ''] with space → ' '."""
@@ -279,37 +289,6 @@ class TestTextJoinMetadata:
         assert result.success is True
         assert result.metadata is not None
         assert result.metadata["input_count"] == 3
-
-
-# ---------------------------------------------------------------------------
-# Class: TestTextJoinErrorHandling
-# ---------------------------------------------------------------------------
-
-class TestTextJoinErrorHandling:
-    """Error cases and BlockResult failure states."""
-
-    def test_missing_handle_a(self):
-        """Missing required handle 'a' → success=False."""
-        block = _make_block(separator=" ")
-        result = block.run({"b": "world"})
-        assert result.success is False
-        assert result.error is not None
-        assert "a" in result.error
-
-    def test_missing_handle_b(self):
-        """Missing required handle 'b' → success=False."""
-        block = _make_block(separator=" ")
-        result = block.run({"a": "hello"})
-        assert result.success is False
-        assert result.error is not None
-        assert "b" in result.error
-
-    def test_missing_both_handles(self):
-        """Empty inputs dict → success=False (missing 'a' first)."""
-        block = _make_block(separator=" ")
-        result = block.run({})
-        assert result.success is False
-        assert result.error is not None
 
 
 # ---------------------------------------------------------------------------
