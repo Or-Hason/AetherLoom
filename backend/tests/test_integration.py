@@ -277,3 +277,205 @@ class TestFlowExecutionEndpoint:
 
         response = client.post("/api/v1/engine/run", json=payload)
         assert response.status_code == 422  # Unprocessable Entity
+
+
+# ---------------------------------------------------------------------------
+# Integration tests — real node types
+# Verifies that math and text nodes execute correctly and results propagate.
+# ---------------------------------------------------------------------------
+
+class TestCoreLogicBlocksIntegration:
+    """End-to-end integration tests for MathOperationBlock and TextJoinBlock
+    via the /api/v1/engine/run HTTP endpoint.
+    """
+
+    def test_math_operation_flow_add(self):
+        """text_input(5) + text_input(3) → math_operation(add) → number_output = 8."""
+        payload = {
+            "nodes": [
+                {
+                    "id": "num-a", "type": "number_input",
+                    "data": {"label": "A", "config": {"value": 5}, "is_output": False}
+                },
+                {
+                    "id": "num-b", "type": "number_input",
+                    "data": {"label": "B", "config": {"value": 3}, "is_output": False}
+                },
+                {
+                    "id": "math", "type": "math_operation",
+                    "data": {"label": "Add", "config": {"operation": "add"}, "is_output": False}
+                },
+                {
+                    "id": "out", "type": "number_output",
+                    "data": {"label": "Out", "config": {}, "is_output": True}
+                },
+            ],
+            "edges": [
+                {"id": "e1", "source": "num-a", "target": "math", "targetHandle": "a"},
+                {"id": "e2", "source": "num-b", "target": "math", "targetHandle": "b"},
+                {"id": "e3", "source": "math", "target": "out", "targetHandle": "input"},
+            ],
+        }
+
+        response = client.post("/api/v1/engine/run", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+
+        # math_operation node should succeed with 5 + 3 = 8
+        assert data["math"]["success"] is True
+        assert data["math"]["value"] == 8
+
+        # number_output should receive the propagated value
+        assert data["out"]["success"] is True
+
+    def test_math_operation_flow_divide_by_zero_propagates_error(self):
+        """Division by zero produces success=False; downstream node receives None."""
+        payload = {
+            "nodes": [
+                {
+                    "id": "num-a", "type": "number_input",
+                    "data": {"label": "A", "config": {"value": 10}, "is_output": False}
+                },
+                {
+                    "id": "num-b", "type": "number_input",
+                    "data": {"label": "B", "config": {"value": 0}, "is_output": False}
+                },
+                {
+                    "id": "math", "type": "math_operation",
+                    "data": {"label": "Div", "config": {"operation": "divide"}, "is_output": False}
+                },
+            ],
+            "edges": [
+                {"id": "e1", "source": "num-a", "target": "math", "targetHandle": "a"},
+                {"id": "e2", "source": "num-b", "target": "math", "targetHandle": "b"},
+            ],
+        }
+
+        response = client.post("/api/v1/engine/run", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["math"]["success"] is False
+        assert "zero" in data["math"]["error"].lower()
+
+    def test_text_join_flow(self):
+        """text_input('Hello') + text_input('World') → text_join(' ') → text_output = 'Hello World'."""
+        payload = {
+            "nodes": [
+                {
+                    "id": "txt-a", "type": "text_input",
+                    "data": {"label": "A", "config": {"value": "Hello"}, "is_output": False}
+                },
+                {
+                    "id": "txt-b", "type": "text_input",
+                    "data": {"label": "B", "config": {"value": "World"}, "is_output": False}
+                },
+                {
+                    "id": "join", "type": "text_join",
+                    "data": {"label": "Join", "config": {"separator": " "}, "is_output": False}
+                },
+                {
+                    "id": "out", "type": "text_output",
+                    "data": {"label": "Out", "config": {}, "is_output": True}
+                },
+            ],
+            "edges": [
+                {"id": "e1", "source": "txt-a", "target": "join", "targetHandle": "a"},
+                {"id": "e2", "source": "txt-b", "target": "join", "targetHandle": "b"},
+                {"id": "e3", "source": "join", "target": "out", "targetHandle": "input"},
+            ],
+        }
+
+        response = client.post("/api/v1/engine/run", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["join"]["success"] is True
+        assert data["join"]["value"] == "Hello World"
+        assert data["out"]["success"] is True
+
+    def test_text_join_newline_separator_flow(self):
+        """text_join with literal '\\n' separator resolves to a real newline in the output."""
+        payload = {
+            "nodes": [
+                {
+                    "id": "l1", "type": "text_input",
+                    "data": {"label": "L1", "config": {"value": "line1"}, "is_output": False}
+                },
+                {
+                    "id": "l2", "type": "text_input",
+                    "data": {"label": "L2", "config": {"value": "line2"}, "is_output": False}
+                },
+                {
+                    "id": "join", "type": "text_join",
+                    # Frontend stores literal backslash-n, not a real newline
+                    "data": {"label": "Join", "config": {"separator": "\\n"}, "is_output": False}
+                },
+            ],
+            "edges": [
+                {"id": "e1", "source": "l1", "target": "join", "targetHandle": "a"},
+                {"id": "e2", "source": "l2", "target": "join", "targetHandle": "b"},
+            ],
+        }
+
+        response = client.post("/api/v1/engine/run", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+
+        assert data["join"]["success"] is True
+        # _resolve_separator should have turned \\n into a real newline
+        assert data["join"]["value"] == "line1\nline2"
+
+    def test_combined_math_and_text_flow(self):
+        """Flow combining math and text nodes: computes 6+4=10, joins with a label string."""
+        payload = {
+            "nodes": [
+                {
+                    "id": "n6", "type": "number_input",
+                    "data": {"label": "6", "config": {"value": 6}, "is_output": False}
+                },
+                {
+                    "id": "n4", "type": "number_input",
+                    "data": {"label": "4", "config": {"value": 4}, "is_output": False}
+                },
+                {
+                    "id": "math", "type": "math_operation",
+                    "data": {"label": "Add", "config": {"operation": "add"}, "is_output": False}
+                },
+                {
+                    "id": "label-txt", "type": "text_input",
+                    "data": {"label": "Label", "config": {"value": "Result:"}, "is_output": False}
+                },
+                {
+                    "id": "join", "type": "text_join",
+                    "data": {"label": "Join", "config": {"separator": " "}, "is_output": False}
+                },
+                {
+                    "id": "out", "type": "text_output",
+                    "data": {"label": "Out", "config": {}, "is_output": True}
+                },
+            ],
+            "edges": [
+                {"id": "e1", "source": "n6", "target": "math", "targetHandle": "a"},
+                {"id": "e2", "source": "n4", "target": "math", "targetHandle": "b"},
+                # math result (10) feeds into text_join as handle 'b' — coerced to "10"
+                {"id": "e3", "source": "label-txt", "target": "join", "targetHandle": "a"},
+                {"id": "e4", "source": "math", "target": "join", "targetHandle": "b"},
+                {"id": "e5", "source": "join", "target": "out", "targetHandle": "input"},
+            ],
+        }
+
+        response = client.post("/api/v1/engine/run", json=payload)
+        assert response.status_code == 200
+        data = response.json()
+
+        # math: 6 + 4 = 10
+        assert data["math"]["success"] is True
+        assert data["math"]["value"] == 10
+
+        # join: "Result:" + " " + "10" (int coerced to str) = "Result: 10"
+        assert data["join"]["success"] is True
+        assert data["join"]["value"] == "Result: 10"
+
+        assert data["out"]["success"] is True
+
